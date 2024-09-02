@@ -1,24 +1,7 @@
-# my-vue2-project
+# EdenX-Mini-Tasks-And-AptosKeyless-Demo
 
-## Project setup
-```
-npm install
-```
+# This codebase is a demonstration version of the EDENX contract interaction functionality. 
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+# It showcases the creation of an Aptos wallet using AptosKeyless technology via a Google account, and implements features such as EdenX OAT minting and other platform tasks. 
 
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+# Currently, this functionality is provided as a demo and will be migrated and integrated into the EdenX Telegram mini program in the future.
