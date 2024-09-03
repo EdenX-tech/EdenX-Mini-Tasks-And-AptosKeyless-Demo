@@ -55,6 +55,8 @@
 <script>
 import useEphemeralKeyPair from '@/hooks/useEphemeralKeyPair.ts';
 import {getAptosClient} from "@/utils/aptosClient";
+import axios from "axios";
+
 
 
 export default {
@@ -66,6 +68,7 @@ export default {
       isModalOpen: false,
       showMintSuccess: false,
       mintStatus: 'MINT',
+      address: '',
       selectedMedallion: {
         collectionName: '',
         description: '',
@@ -98,6 +101,8 @@ export default {
   async mounted() {
     const keylessAccount = this.keylessAccount();
     const accountAddress =  keylessAccount.accountAddress.toString();
+    this.address = accountAddress;
+
     console.log(accountAddress);
     if (keylessAccount) {
       this.account_exist = true;
@@ -110,15 +115,38 @@ export default {
   },
   methods: {
     async learn() {
-      // const aptosClient = getAptosClient();
-
       if (this.is_earn == 2) {
         console.log('data:', 111);
+      }
+      var responseMessage;
+      if (this.is_earn == 2) {
+
+        console.log('data:', this.address);
+        try {
+          const response = await axios.post(
+              'http://localhost:3000/api/v1/transfer',
+              { address: this.address },
+              {
+                headers: {
+                  'Accept-Language': 'en-US', // 添加 Accept-Language 头
+                },
+              }
+          );
+          // 处理成功响应
+          responseMessage = response.data.data;
+        } catch (error) {
+          // 处理错误响应
+          responseMessage = `Error: ${error.response ? error.response.data.message : error.message}`;
+        }
+
+        console.log("responseMessage:", responseMessage)
+      } else {
+        console.log("responseMessage:", 11111)
       }
     },
     async checkIn() {
       const aptosClient = getAptosClient();
-      const keylessAccount = this.keylessAccount();
+      const keylessAccount = this.keylessAccount("127.0.0.1:3000/api/v1/transfer");
       if (!keylessAccount) {
         console.error("keylessAccount is undefined.");
         return;
