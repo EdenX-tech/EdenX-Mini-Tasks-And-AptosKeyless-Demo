@@ -1,5 +1,5 @@
 <template>
-  <div class="container"  :class="{ 'blurred': isModalOpen }">
+  <div class="container" :class="{ 'blurred': isModalOpen }">
     <div class="content">
       <h1>EdenX Tasks</h1>
       <p>Just tap your fingers and easily get your points!</p>
@@ -15,8 +15,10 @@
     </div>
 
     <div class="tasks-button">
+      <button @click="learn">{{ is_earn == 2 ? 'Learn to Earn' : 'Learn'}}</button>
       <button @click="checkIn">Daily Check-in</button>
       <button @click="viewWallet">View Wallet Assets</button>
+
     </div>
 
     <div class="medallions-container">
@@ -54,10 +56,12 @@
 import useEphemeralKeyPair from '@/hooks/useEphemeralKeyPair.ts';
 import {getAptosClient} from "@/utils/aptosClient";
 
+
 export default {
   inject: ['keylessAccount'],
   data() {
     return {
+      is_earn: 0,
       account_exist: false,
       isModalOpen: false,
       showMintSuccess: false,
@@ -93,7 +97,8 @@ export default {
   },
   async mounted() {
     const keylessAccount = this.keylessAccount();
-    console.log(keylessAccount.accountAddress.toString());
+    const accountAddress =  keylessAccount.accountAddress.toString();
+    console.log(accountAddress);
     if (keylessAccount) {
       this.account_exist = true;
       localStorage.setItem('account_exist', JSON.stringify(keylessAccount));
@@ -101,8 +106,16 @@ export default {
       const accountExist = localStorage.getItem('account_exist');
       this.account_exist = accountExist === 'true';
     }
+    this.is_earn = await this.getUserMintOATStatus(accountAddress, 0)
   },
   methods: {
+    async learn() {
+      // const aptosClient = getAptosClient();
+
+      if (this.is_earn == 2) {
+        console.log('data:', 111);
+      }
+    },
     async checkIn() {
       const aptosClient = getAptosClient();
       const keylessAccount = this.keylessAccount();
@@ -169,7 +182,9 @@ export default {
         return;
       }
       const accountAddress =  keylessAccount.accountAddress.toString();
-
+      // const res = await this.getUserMintOATStatus(accountAddress, index);
+      // console.log("getUserMintOATStatus:", res)
+      // return;
       const transaction = await aptosClient.transaction.build.simple({
         sender: accountAddress,
         data: {
@@ -197,6 +212,21 @@ export default {
         console.error("Mint FAILED:", error);
         this.mintStatus = "FAILED";
       }
+    },
+    async getUserMintOATStatus(address, index) {
+        const aptosClient = getAptosClient();
+        const payload = {
+          function: process.env.VUE_APP_SENDER + `::proof_of_achievement::get_user_mini_OAT_status`,
+          typeArguments: [],
+          functionArguments: [
+              address,
+              index
+          ],
+        };
+
+        const chainId = (await aptosClient.view({ payload }))[0];
+        console.log("getUserMintOATStatus111:", chainId);
+        return chainId;
     },
     closeMintSuccess() {
       console.log("closeMintSuccess");
