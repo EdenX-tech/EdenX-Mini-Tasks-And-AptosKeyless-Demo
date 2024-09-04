@@ -46,7 +46,7 @@
     </div>
 
     <div v-if="showMintSuccess" class="mint-success-popup">
-      <p>Success！</p>
+      <p>{{ decryptedText }}</p>
       <button @click="closeMintSuccess">Close</button>
     </div>
   </div>
@@ -56,7 +56,7 @@
 import useEphemeralKeyPair from '@/hooks/useEphemeralKeyPair.ts';
 import {getAptosClient} from "@/utils/aptosClient";
 import axios from "axios";
-
+import CryptoJS from "crypto-js";
 
 
 export default {
@@ -76,6 +76,7 @@ export default {
         src: '',
         index: 0,
       },
+      decryptedText: 'Success!',
       medallions: [
         {
           collectionName: 'EDENX NOVICE OAT',
@@ -115,9 +116,6 @@ export default {
   },
   methods: {
     async learn() {
-      if (this.is_earn == 2) {
-        console.log('data:', 111);
-      }
       var responseMessage;
       if (this.is_earn == 2) {
 
@@ -133,7 +131,17 @@ export default {
               }
           );
           // 处理成功响应
-          responseMessage = response.data.data;
+          responseMessage = response.data.data.data;
+          var result = JSON.parse(this.decryptData(responseMessage))
+          if (result.is_earn == true) {
+            const octa = result.amount;
+            const apt = octa / 10**8;
+            this.decryptedText = 'Congratulations! You’ve received a reward of ' + apt + ' $APT.';
+            this.showMintSuccess = true;
+          } else {
+            this.decryptedText = 'Congratulations on answering correctly! Keep answering for a chance to win $APT rewards.';
+            this.showMintSuccess = true;
+          }
         } catch (error) {
           // 处理错误响应
           responseMessage = `Error: ${error.response ? error.response.data.message : error.message}`;
@@ -288,6 +296,27 @@ export default {
       // 更新状态
       this.account_exist = false;
       localStorage.setItem('account_exist', this.account_exist);
+    },
+    decryptData(encryptedData) {
+      // 密钥（16、24 或 32 字节的字符串）
+      var key = CryptoJS.enc.Utf8.parse(process.env.VUE_APP_KEY);
+
+      // 将Base64编码的字符串解码为字节
+      var bytes = CryptoJS.enc.Base64.parse(encryptedData);
+
+      // 将IV（前16字节）和密文分开
+      var iv = CryptoJS.lib.WordArray.create(bytes.words.slice(0, 4));
+      var cipherText = CryptoJS.lib.WordArray.create(bytes.words.slice(4));
+
+      // 解密
+      var decrypted = CryptoJS.AES.decrypt(
+          { ciphertext: cipherText },
+          key,
+          { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }
+      );
+
+      // 将解密后的数据转换为UTF-8字符串
+      return decrypted.toString(CryptoJS.enc.Utf8);
     }
   },
 };
