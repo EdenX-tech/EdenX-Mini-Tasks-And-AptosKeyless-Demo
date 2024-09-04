@@ -20,4 +20,5 @@ Users can participate in quizzes and have the chance to earn random APT rewards 
 ## Demo
 
 To explore the features, visit the demo at:
-https://minitasks.edenx.xyz
+
+[Tasks Demo](https://minitasks.edenx.xyz)
