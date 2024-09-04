@@ -15,7 +15,7 @@
     </div>
 
     <div class="tasks-button">
-      <button @click="learn">{{ is_earn == 2 ? 'Learn to Earn' : 'Learn'}}</button>
+      <button @click="learn">{{ is_earn == 1 ? 'Learn to Earn' : 'Learn'}}</button>
       <button @click="checkIn">Daily Check-in</button>
       <button @click="viewWallet">View Wallet Assets</button>
 
@@ -117,7 +117,7 @@ export default {
   methods: {
     async learn() {
       var responseMessage;
-      if (this.is_earn == 2) {
+      if (this.is_earn == 1) {
 
         console.log('data:', this.address);
         try {
