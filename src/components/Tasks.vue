@@ -122,7 +122,7 @@ export default {
         console.log('data:', this.address);
         try {
           const response = await axios.post(
-              'http://localhost:3000/api/v1/transfer',
+              process.env.VUE_APP_LEARN,
               { address: this.address },
               {
                 headers: {
@@ -149,12 +149,12 @@ export default {
 
         console.log("responseMessage:", responseMessage)
       } else {
-        console.log("responseMessage:", 11111)
+        console.log("responseMessage error")
       }
     },
     async checkIn() {
       const aptosClient = getAptosClient();
-      const keylessAccount = this.keylessAccount("127.0.0.1:3000/api/v1/transfer");
+      const keylessAccount = this.keylessAccount();
       if (!keylessAccount) {
         console.error("keylessAccount is undefined.");
         return;
@@ -291,31 +291,24 @@ export default {
       }
     },
     logout() {
-      // // 清除本地存储中的密钥对
       localStorage.removeItem('account_exist');
-      // 更新状态
       this.account_exist = false;
       localStorage.setItem('account_exist', this.account_exist);
     },
     decryptData(encryptedData) {
-      // 密钥（16、24 或 32 字节的字符串）
       var key = CryptoJS.enc.Utf8.parse(process.env.VUE_APP_KEY);
 
-      // 将Base64编码的字符串解码为字节
       var bytes = CryptoJS.enc.Base64.parse(encryptedData);
 
-      // 将IV（前16字节）和密文分开
       var iv = CryptoJS.lib.WordArray.create(bytes.words.slice(0, 4));
       var cipherText = CryptoJS.lib.WordArray.create(bytes.words.slice(4));
 
-      // 解密
       var decrypted = CryptoJS.AES.decrypt(
           { ciphertext: cipherText },
           key,
           { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }
       );
 
-      // 将解密后的数据转换为UTF-8字符串
       return decrypted.toString(CryptoJS.enc.Utf8);
     }
   },
